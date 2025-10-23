@@ -124,9 +124,17 @@ createButton("Dark Dex", function()
 	end
 end)
 
--- Win Game (WIP)
-createButton("Win Game (WIP)", function()
-	print("Win Game feature coming soon for Subway version!")
+-- Win Game
+createButton("Win Game", function()
+	local ReplicatedStorage = game:GetService("ReplicatedStorage")
+	local winEvent = ReplicatedStorage:FindFirstChild("win")
+
+	if winEvent and winEvent:IsA("RemoteEvent") then
+		winEvent:FireServer()
+		print("Win event fired! You should see the victory sequence soon.")
+	else
+		print("Win event not found in ReplicatedStorage!")
+	end
 end)
 
 -- Full Bright
@@ -316,6 +324,70 @@ createButton("Bypass Power Outage", function()
 	end
 
 	print("Power Outage fully bypassed!")
+end)
+
+-- Get access to hallways
+createButton("Get access to hallways", function()
+	local map = workspace:FindFirstChild("Map")
+	if not map then
+		print("Map not found in workspace.")
+		return
+	end
+
+	local structure = map:FindFirstChild("Structure")
+	if not structure then
+		print("Structure not found under Map.")
+		return
+	end
+
+	local children = structure:GetChildren()
+	local indices = {66, 67}
+	local destroyed = {}
+
+	for _, idx in ipairs(indices) do
+		local part = children[idx]
+		if part then
+			local name = part.Name
+			part:Destroy()
+			table.insert(destroyed, string.format("[%d] %s", idx, name))
+		else
+			table.insert(destroyed, string.format("[%d] NOT FOUND", idx))
+		end
+	end
+
+	print("Get access to hallways results:", table.concat(destroyed, " | "))
+end)
+
+-- Get access to The Subway
+createButton("Get access to The Subway", function()
+	local map = workspace:FindFirstChild("Map")
+	if not map then
+		print("Map not found in workspace.")
+		return
+	end
+
+	local structure = map:FindFirstChild("Structure")
+	if not structure then
+		print("Structure not found under Map.")
+		return
+	end
+
+	local children = structure:GetChildren()
+	local indices = {18, 21}
+	local destroyed = {}
+
+	for _, idx in ipairs(indices) do
+		local part = children[idx]
+		if part then
+			local name = part.Name
+			part:Destroy()
+			table.insert(destroyed, string.format("[%d] %s", idx, name))
+		else
+			table.insert(destroyed, string.format("[%d] NOT FOUND", idx))
+		end
+	end
+
+	print("Get access to The Subway results:", table.concat(destroyed, " | "))
 end)
 
 -- Final Touch
