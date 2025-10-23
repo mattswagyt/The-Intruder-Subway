@@ -1,0 +1,322 @@
+-- Roblox Lua Script for "The Intruder - Subway" Map (By BMF)
+-- Script handles a draggable UI with multiple functionalities
+
+-- Variables
+local Players = game:GetService("Players")
+local Lighting = game:GetService("Lighting")
+local StarterGui = game:GetService("StarterGui")
+local UIS = game:GetService("UserInputService")
+local LocalPlayer = Players.LocalPlayer
+local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
+
+-- Create UI Elements
+local ScreenGui = Instance.new("ScreenGui")
+local MainFrame = Instance.new("Frame")
+local Title = Instance.new("TextLabel")
+local LocationLabel = Instance.new("TextLabel")
+local ErrorLog = Instance.new("TextLabel")
+local UIListLayout = Instance.new("UIListLayout")
+
+-- UI Properties
+ScreenGui.Parent = PlayerGui
+ScreenGui.ResetOnSpawn = false
+ScreenGui.Name = "IntruderUI"
+
+MainFrame.Parent = ScreenGui
+MainFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+MainFrame.Size = UDim2.new(0, 300, 0, 400)
+MainFrame.Position = UDim2.new(0.5, 272, 0.5, -545)
+MainFrame.Active = true
+MainFrame.Draggable = true
+MainFrame.Visible = true
+
+Title.Parent = MainFrame
+Title.Text = "The Intruder - Subway (By BMF)"
+Title.Size = UDim2.new(1, 0, 0, 30)
+Title.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+Title.Font = Enum.Font.SourceSansBold
+Title.TextSize = 18
+
+LocationLabel.Parent = MainFrame
+LocationLabel.Text = "Location: Loading..."
+LocationLabel.Size = UDim2.new(1, 0, 0, 30)
+LocationLabel.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+LocationLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+LocationLabel.Font = Enum.Font.SourceSans
+LocationLabel.TextSize = 16
+
+ErrorLog.Parent = MainFrame
+ErrorLog.Text = "Error Log: None"
+ErrorLog.Size = UDim2.new(1, 0, 0, 30)
+ErrorLog.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+ErrorLog.TextColor3 = Color3.fromRGB(255, 85, 85)
+ErrorLog.Font = Enum.Font.SourceSans
+ErrorLog.TextSize = 14
+ErrorLog.TextWrapped = true
+ErrorLog.TextYAlignment = Enum.TextYAlignment.Top
+
+UIListLayout.Parent = MainFrame
+UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+
+-- Toggle UI with Delete key
+UIS.InputBegan:Connect(function(input, processed)
+	if not processed and input.KeyCode == Enum.KeyCode.Delete then
+		MainFrame.Visible = not MainFrame.Visible
+	end
+end)
+
+-- Function to Create Buttons
+local function createButton(name, callback)
+	local Button = Instance.new("TextButton")
+	Button.Parent = MainFrame
+	Button.Text = name
+	Button.Size = UDim2.new(1, 0, 0, 30)
+	Button.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+	Button.TextColor3 = Color3.fromRGB(255, 255, 255)
+	Button.Font = Enum.Font.SourceSans
+	Button.TextSize = 16
+	Button.MouseButton1Click:Connect(function()
+		pcall(callback)
+	end)
+	return Button
+end
+
+-- Track Intruder Location (for Subway)
+spawn(function()
+	while true do
+		local success, result = pcall(function()
+			return workspace.Configuration.intruderPos.Value
+		end)
+		if success then
+			LocationLabel.Text = "Location: " .. tostring(result)
+		else
+			LocationLabel.Text = "Location: Error"
+			ErrorLog.Text = "Error Log: Failed to fetch intruder location."
+		end
+		wait(1)
+	end
+end)
+
+-- Buttons --
+
+-- Infinite Yield
+createButton("Infinite Yield", function()
+	local success, result = pcall(function()
+		loadstring(game:HttpGet("https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source"))()
+	end)
+	if success then
+		print("Infinite Yield executed!")
+	else
+		print("Error executing Infinite Yield")
+	end
+end)
+
+-- Dark Dex
+createButton("Dark Dex", function()
+	local success, result = pcall(function()
+		loadstring(game:HttpGet("https://raw.githubusercontent.com/infyiff/backup/main/dex.lua"))()
+	end)
+	if success then
+		print("Dark Dex executed!")
+	else
+		print("Error executing Dark Dex")
+	end
+end)
+
+-- Win Game (WIP)
+createButton("Win Game (WIP)", function()
+	print("Win Game feature coming soon for Subway version!")
+end)
+
+-- Full Bright
+createButton("Full Bright", function()
+	Lighting.Brightness = 5
+	Lighting.ClockTime = 14
+	Lighting.FogEnd = 100000
+	Lighting.GlobalShadows = false
+	Lighting.OutdoorAmbient = Color3.new(1, 1, 1)
+	print("Full Bright activated!")
+end)
+
+-- Shift to Run
+createButton("Shift to Run", function()
+	local player = Players.LocalPlayer
+	local character = player.Character or player.CharacterAdded:Wait()
+	local humanoid = character:WaitForChild("Humanoid")
+
+	local speedBoost = 30
+	local normalSpeed = 16
+
+	UIS.InputBegan:Connect(function(input, processed)
+		if not processed and input.KeyCode == Enum.KeyCode.LeftShift then
+			humanoid.WalkSpeed = speedBoost
+		end
+	end)
+
+	UIS.InputEnded:Connect(function(input)
+		if input.KeyCode == Enum.KeyCode.LeftShift then
+			humanoid.WalkSpeed = normalSpeed
+		end
+	end)
+
+	print("Shift to Run enabled! Hold Shift to sprint.")
+end)
+
+createButton("Intruder Ignores You", function()
+	local Players = game:GetService("Players")
+	local ReplicatedStorage = game:GetService("ReplicatedStorage")
+	local StarterGui = game:GetService("StarterGui")
+	local player = Players.LocalPlayer
+	local playerName = player.Name
+
+	-- Disable Death GUI logic
+	local deathGui = player.PlayerGui:FindFirstChild("Death")
+	if deathGui and deathGui:FindFirstChild("canExecute") then
+		local canExecute = deathGui.canExecute
+		spawn(function()
+			while true do
+				canExecute.Value = false
+				wait(0.1)
+			end
+		end)
+		print("The Intruder will now ignore you!")
+	else
+		print("Death GUI or canExecute not found!")
+	end
+
+	-- Destroy all related kill triggers and death objects
+	local destroyList = {
+		workspace:FindFirstChild("ShameTeleport"),
+		workspace:FindFirstChild("BoxOfShame"),
+		workspace:FindFirstChild(playerName) and workspace[playerName]:FindFirstChild("Health"),
+		workspace:FindFirstChild(playerName) and workspace[playerName]:FindFirstChild("isDead"),
+		workspace:FindFirstChild("Configuration") and workspace.Configuration:FindFirstChild("HasDied"),
+		player.PlayerGui:FindFirstChild("Death"),
+		player.PlayerGui:FindFirstChild("DeathGUI"),
+		player.PlayerGui:FindFirstChild("TakenWarning"),
+		StarterGui:FindFirstChild("Death"),
+		StarterGui:FindFirstChild("DeathGUI"),
+		StarterGui:FindFirstChild("TakenWarning"),
+		ReplicatedStorage:FindFirstChild("playerDeath"),
+		ReplicatedStorage:FindFirstChild("partnerDie"),
+		ReplicatedStorage:FindFirstChild("clientPartnerDeath"),
+		ReplicatedStorage:FindFirstChild("activateDeath"),
+		ReplicatedStorage:FindFirstChild("Die"),
+		workspace:FindFirstChild("Events") and workspace.Events:FindFirstChild("FindPlayer") and workspace.Events.FindPlayer:FindFirstChild("TouchInterest"),
+	}
+
+	for _, obj in pairs(destroyList) do
+		if obj then
+			obj:Destroy()
+			print("Destroyed:", obj:GetFullName())
+		end
+	end
+
+	print("All related death and trigger objects have been destroyed!")
+end)
+
+-- Make Easy Mode
+createButton("Make Easy Mode", function()
+	local values = workspace:FindFirstChild("Configuration")
+	if values then
+		values.isEasyMode.Value = true
+		values.isNightmareMode.Value = false
+		print("It is now Easy Mode!")
+	else
+		print("Configuration not found!")
+	end
+end)
+
+-- Make Nightmare Mode
+createButton("Make Nightmare Mode", function()
+	local values = workspace:FindFirstChild("Configuration")
+	if values then
+		values.isEasyMode.Value = false
+		values.isNightmareMode.Value = true
+		print("It is now Nightmare Mode!")
+	else
+		print("Configuration not found!")
+	end
+end)
+
+-- Break Anxiety
+createButton("Break Anxiety", function()
+	local config = workspace:FindFirstChild("Configuration")
+	if config and config:FindFirstChild("Anxiety") then
+		local anxietyValue = config.Anxiety
+		spawn(function()
+			while true do
+				anxietyValue.Value = -1000000000000000
+				wait(0.1)
+			end
+		end)
+		print("Anxiety permanently broken! (Value locked at -1000000000000000)")
+	else
+		print("Anxiety value not found in workspace.Configuration!")
+	end
+end)
+
+-- Break Awareness
+createButton("Break Awareness", function()
+	spawn(function()
+		local starterGuiAwareness = StarterGui:FindFirstChild("IntruderAwareness")
+		if starterGuiAwareness then
+			starterGuiAwareness:Destroy()
+			print("StarterGui IntruderAwareness removed.")
+		end
+
+		while true do
+			local playerGuiAwareness = LocalPlayer:FindFirstChild("PlayerGui")
+			if playerGuiAwareness then
+				local awareness = playerGuiAwareness:FindFirstChild("IntruderAwareness")
+				if awareness then
+					awareness:Destroy()
+					print("PlayerGui IntruderAwareness removed.")
+				end
+			end
+			wait(0.1)
+		end
+	end)
+	print("Awareness system hidden!")
+end)
+
+-- Bypass Power Outage
+createButton("Bypass Power Outage", function()
+	local Players = game:GetService("Players")
+	local StarterGui = game:GetService("StarterGui")
+	local player = Players.LocalPlayer
+
+	-- Lock isPowerDown value to false
+	local config = workspace:FindFirstChild("Configuration")
+	if config and config:FindFirstChild("isPowerDown") then
+		local isPowerDown = config.isPowerDown
+		task.spawn(function()
+			while true do
+				isPowerDown.Value = false
+				task.wait(0.1)
+			end
+		end)
+		print("isPowerDown locked to false!")
+	else
+		print("workspace.Configuration.isPowerDown not found!")
+	end
+
+	-- Destroy PowerOut GUI elements
+	local guiTargets = {
+		StarterGui:FindFirstChild("PowerOut"),
+		player:FindFirstChild("PlayerGui") and player.PlayerGui:FindFirstChild("PowerOut"),
+	}
+
+	for _, gui in ipairs(guiTargets) do
+		if gui then
+			gui:Destroy()
+			print("Destroyed:", gui:GetFullName())
+		end
+	end
+
+	print("Power Outage fully bypassed!")
+end)
+
+-- Final Touch
+print("The Intruder - Subway Script Loaded Successfully")
