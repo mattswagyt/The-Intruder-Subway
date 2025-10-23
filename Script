@@ -224,6 +224,59 @@ createButton("Intruder Ignores You", function()
 	print("All related death and trigger objects have been destroyed!")
 end)
 
+createButton("God Mode", function()
+	local Players = game:GetService("Players")
+	local ReplicatedStorage = game:GetService("ReplicatedStorage")
+	local StarterGui = game:GetService("StarterGui")
+	local player = Players.LocalPlayer
+	local playerName = player.Name
+
+	-- Disable Death GUI logic
+	local deathGui = player.PlayerGui:FindFirstChild("Death")
+	if deathGui and deathGui:FindFirstChild("canExecute") then
+		local canExecute = deathGui.canExecute
+		spawn(function()
+			while true do
+				canExecute.Value = false
+				wait(0.1)
+			end
+		end)
+		print("God Mode activated!")
+	else
+		print("Death GUI or canExecute not found!")
+	end
+
+	-- Destroy all related kill triggers and death objects
+	local destroyList = {
+		workspace:FindFirstChild("ShameTeleport"),
+		workspace:FindFirstChild("BoxOfShame"),
+		workspace:FindFirstChild(playerName) and workspace[playerName]:FindFirstChild("Health"),
+		workspace:FindFirstChild(playerName) and workspace[playerName]:FindFirstChild("isDead"),
+		workspace:FindFirstChild("Configuration") and workspace.Configuration:FindFirstChild("HasDied"),
+		player.PlayerGui:FindFirstChild("Death"),
+		player.PlayerGui:FindFirstChild("DeathGUI"),
+		player.PlayerGui:FindFirstChild("TakenWarning"),
+		StarterGui:FindFirstChild("Death"),
+		StarterGui:FindFirstChild("DeathGUI"),
+		StarterGui:FindFirstChild("TakenWarning"),
+		ReplicatedStorage:FindFirstChild("playerDeath"),
+		ReplicatedStorage:FindFirstChild("partnerDie"),
+		ReplicatedStorage:FindFirstChild("clientPartnerDeath"),
+		ReplicatedStorage:FindFirstChild("activateDeath"),
+		ReplicatedStorage:FindFirstChild("Die"),
+	}
+
+	for _, obj in pairs(destroyList) do
+		if obj then
+			obj:Destroy()
+			print("Destroyed:", obj:GetFullName())
+		end
+	end
+
+	print("All related death and trigger objects have been destroyed!")
+    print("You now have God Mode enabled!")
+end)
+
 -- Make Easy Mode
 createButton("Make Easy Mode", function()
 	local values = workspace:FindFirstChild("Configuration")
@@ -388,6 +441,55 @@ createButton("Get access to The Subway", function()
 	end
 
 	print("Get access to The Subway results:", table.concat(destroyed, " | "))
+end)
+
+-- Remove Callers
+createButton("Remove Callers", function()
+    task.spawn(function()
+        while true do
+            local caller = workspace:FindFirstChild("Caller")
+            if caller then
+                caller:Destroy()
+                print("Caller destroyed!")
+            end
+            task.wait(0.1)
+        end
+    end)
+    print("Caller remover activated! It will now automatically destroy all Callers.")
+end)
+
+-- Remove Screamers
+createButton("Remove Screamers", function()
+    task.spawn(function()
+        while true do
+            for _, name in ipairs({"ScreamerRunBy", "Screamer"}) do
+                local obj = workspace:FindFirstChild(name)
+                if obj then
+                    obj:Destroy()
+                    print(name .. " destroyed!")
+                end
+            end
+            task.wait(0.1)
+        end
+    end)
+    print("Screamer remover activated! It will now automatically destroy all Screamers.")
+end)
+
+-- Remove All Entities
+createButton("Remove All Entities", function()
+    task.spawn(function()
+        while true do
+            for _, name in ipairs({"Caller", "ScreamerRunBy", "Screamer"}) do
+                local obj = workspace:FindFirstChild(name)
+                if obj then
+                    obj:Destroy()
+                    print(name .. " destroyed!")
+                end
+            end
+            task.wait(0.1)
+        end
+    end)
+    print("Entity remover activated! It will now automatically destroy all Callers and Screamers.")
 end)
 
 -- Final Touch
