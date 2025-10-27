@@ -172,109 +172,43 @@ createButton("Shift to Run", function()
 end)
 
 createButton("Intruder Ignores You", function()
-	local Players = game:GetService("Players")
-	local ReplicatedStorage = game:GetService("ReplicatedStorage")
-	local StarterGui = game:GetService("StarterGui")
-	local player = Players.LocalPlayer
-	local playerName = player.Name
+    local Players = game:GetService("Players")
+    local StarterGui = game:GetService("StarterGui")
+    local player = Players.LocalPlayer
+    local playerName = player.Name
 
-	-- Disable Death GUI logic
-	local deathGui = player.PlayerGui:FindFirstChild("Death")
-	if deathGui and deathGui:FindFirstChild("canExecute") then
-		local canExecute = deathGui.canExecute
-		spawn(function()
-			while true do
-				canExecute.Value = false
-				wait(0.1)
-			end
-		end)
-		print("The Intruder will now ignore you!")
-	else
-		print("Death GUI or canExecute not found!")
-	end
+    -- Delete specific objects
+    local deleteList = {
+        workspace:FindFirstChild("BoxOfShame"),
+        workspace:FindFirstChild("ShameTeleport"),
+        workspace:FindFirstChild("Configuration") and workspace.Configuration:FindFirstChild("HasDied"),
+        workspace:FindFirstChild("Events") and workspace.Events:FindFirstChild("FindPlayer") and workspace.Events.FindPlayer:FindFirstChild("TouchInterest"),
+        player.PlayerGui:FindFirstChild("DeathGUI"),
+        workspace:FindFirstChild(playerName) and workspace[playerName]:FindFirstChild("Health"),
+        workspace:FindFirstChild(playerName) and workspace[playerName]:FindFirstChild("isDead"),
+    }
 
-	-- Destroy all related kill triggers and death objects
-	local destroyList = {
-		workspace:FindFirstChild("ShameTeleport"),
-		workspace:FindFirstChild("BoxOfShame"),
-		workspace:FindFirstChild(playerName) and workspace[playerName]:FindFirstChild("Health"),
-		workspace:FindFirstChild(playerName) and workspace[playerName]:FindFirstChild("isDead"),
-		workspace:FindFirstChild("Configuration") and workspace.Configuration:FindFirstChild("HasDied"),
-		player.PlayerGui:FindFirstChild("Death"),
-		player.PlayerGui:FindFirstChild("DeathGUI"),
-		player.PlayerGui:FindFirstChild("TakenWarning"),
-		StarterGui:FindFirstChild("Death"),
-		StarterGui:FindFirstChild("DeathGUI"),
-		StarterGui:FindFirstChild("TakenWarning"),
-		ReplicatedStorage:FindFirstChild("playerDeath"),
-		ReplicatedStorage:FindFirstChild("partnerDie"),
-		ReplicatedStorage:FindFirstChild("clientPartnerDeath"),
-		ReplicatedStorage:FindFirstChild("activateDeath"),
-		ReplicatedStorage:FindFirstChild("Die"),
-		workspace:FindFirstChild("Events") and workspace.Events:FindFirstChild("FindPlayer") and workspace.Events.FindPlayer:FindFirstChild("TouchInterest"),
-	}
+    for _, obj in pairs(deleteList) do
+        if obj then
+            obj:Destroy()
+            print("Destroyed:", obj:GetFullName())
+        end
+    end
 
-	for _, obj in pairs(destroyList) do
-		if obj then
-			obj:Destroy()
-			print("Destroyed:", obj:GetFullName())
-		end
-	end
+    -- Set canExecute to false
+    local deathGuiLocal = player.PlayerGui:FindFirstChild("Death")
+    if deathGuiLocal and deathGuiLocal:FindFirstChild("canExecute") then
+        deathGuiLocal.canExecute.Value = false
+        print("PlayerGui Death.canExecute set to false")
+    end
 
-	print("All related death and trigger objects have been destroyed!")
-end)
+    local deathGuiStarter = StarterGui:FindFirstChild("Death")
+    if deathGuiStarter and deathGuiStarter:FindFirstChild("canExecute") then
+        deathGuiStarter.canExecute.Value = false
+        print("StarterGui Death.canExecute set to false")
+    end
 
-createButton("God Mode", function()
-	local Players = game:GetService("Players")
-	local ReplicatedStorage = game:GetService("ReplicatedStorage")
-	local StarterGui = game:GetService("StarterGui")
-	local player = Players.LocalPlayer
-	local playerName = player.Name
-
-	-- Disable Death GUI logic
-	local deathGui = player.PlayerGui:FindFirstChild("Death")
-	if deathGui and deathGui:FindFirstChild("canExecute") then
-		local canExecute = deathGui.canExecute
-		spawn(function()
-			while true do
-				canExecute.Value = false
-				wait(0.1)
-			end
-		end)
-		print("God Mode activated!")
-	else
-		print("Death GUI or canExecute not found!")
-	end
-
-	-- Destroy all related kill triggers and death objects
-	local destroyList = {
-		workspace:FindFirstChild("ShameTeleport"),
-		workspace:FindFirstChild("BoxOfShame"),
-		workspace:FindFirstChild(playerName) and workspace[playerName]:FindFirstChild("Health"),
-		workspace:FindFirstChild(playerName) and workspace[playerName]:FindFirstChild("isDead"),
-		workspace:FindFirstChild("Configuration") and workspace.Configuration:FindFirstChild("HasDied"),
-		player.PlayerGui:FindFirstChild("Death"),
-		player.PlayerGui:FindFirstChild("DeathGUI"),
-		player.PlayerGui:FindFirstChild("TakenWarning"),
-		StarterGui:FindFirstChild("Death"),
-		StarterGui:FindFirstChild("DeathGUI"),
-		StarterGui:FindFirstChild("TakenWarning"),
-		ReplicatedStorage:FindFirstChild("playerDeath"),
-		ReplicatedStorage:FindFirstChild("partnerDie"),
-		ReplicatedStorage:FindFirstChild("clientPartnerDeath"),
-		ReplicatedStorage:FindFirstChild("activateDeath"),
-		ReplicatedStorage:FindFirstChild("Die"),
-	}
-
-	for _, obj in pairs(destroyList) do
-		if obj then
-			obj:Destroy()
-			print("Destroyed:", obj:GetFullName())
-		end
-	end
-
-	print("All related death and trigger objects have been destroyed!")
-    print("You now have God Mode enabled!")
+    print("Intruder ignore modifications applied!")
 end)
 
 -- Make Easy Mode
@@ -346,6 +280,7 @@ end)
 createButton("Bypass Power Outage", function()
 	local Players = game:GetService("Players")
 	local StarterGui = game:GetService("StarterGui")
+	local ReplicatedStorage = game:GetService("ReplicatedStorage")
 	local player = Players.LocalPlayer
 
 	-- Lock isPowerDown value to false
@@ -354,7 +289,9 @@ createButton("Bypass Power Outage", function()
 		local isPowerDown = config.isPowerDown
 		task.spawn(function()
 			while true do
-				isPowerDown.Value = false
+				if isPowerDown and isPowerDown.Value ~= false then
+					isPowerDown.Value = false
+				end
 				task.wait(0.1)
 			end
 		end)
@@ -371,9 +308,18 @@ createButton("Bypass Power Outage", function()
 
 	for _, gui in ipairs(guiTargets) do
 		if gui then
-			gui:Destroy()
-			print("Destroyed:", gui:GetFullName())
+			pcall(function() gui:Destroy() end)
+			print("Destroyed:", gui and gui:GetFullName() or "unknown gui")
 		end
+	end
+
+	-- Destroy ReplicatedStorage CutPower if present
+	local cutPower = ReplicatedStorage:FindFirstChild("CutPower")
+	if cutPower then
+		pcall(function() cutPower:Destroy() end)
+		print("Destroyed ReplicatedStorage.CutPower")
+	else
+		print("ReplicatedStorage.CutPower not found")
 	end
 
 	print("Power Outage fully bypassed!")
@@ -411,7 +357,7 @@ createButton("Get access to hallways", function()
 	print("Get access to hallways results:", table.concat(destroyed, " | "))
 end)
 
--- Get access to The Subway
+-- Get access to The Subway + add bridge
 createButton("Get access to The Subway", function()
 	local map = workspace:FindFirstChild("Map")
 	if not map then
@@ -425,6 +371,7 @@ createButton("Get access to The Subway", function()
 		return
 	end
 
+	-- Destroy specified parts
 	local children = structure:GetChildren()
 	local indices = {18, 21}
 	local destroyed = {}
@@ -441,6 +388,19 @@ createButton("Get access to The Subway", function()
 	end
 
 	print("Get access to The Subway results:", table.concat(destroyed, " | "))
+
+	-- Create a bridge part
+	local startPos = Vector3.new(16, 4, -22)
+	local endPos = Vector3.new(18, 4, -32)
+	local bridge = Instance.new("Part")
+	bridge.Anchored = true
+	bridge.Size = Vector3.new( (endPos - startPos).Magnitude, 1, 4 ) -- length between points, thin width/depth
+	bridge.CFrame = CFrame.new((startPos + endPos)/2, endPos) -- positioned and oriented between start and end
+	bridge.BrickColor = BrickColor.new("Medium stone grey")
+	bridge.Material = Enum.Material.Metal
+	bridge.Parent = workspace
+
+	print("Bridge created from", tostring(startPos), "to", tostring(endPos))
 end)
 
 -- Remove Callers
