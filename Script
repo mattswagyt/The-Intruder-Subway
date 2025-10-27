@@ -357,7 +357,7 @@ createButton("Get access to hallways", function()
 	print("Get access to hallways results:", table.concat(destroyed, " | "))
 end)
 
--- Get access to The Subway + add bridge
+-- Get access to The Subway
 createButton("Get access to The Subway", function()
 	local map = workspace:FindFirstChild("Map")
 	if not map then
@@ -371,7 +371,6 @@ createButton("Get access to The Subway", function()
 		return
 	end
 
-	-- Destroy specified parts
 	local children = structure:GetChildren()
 	local indices = {18, 21}
 	local destroyed = {}
@@ -388,19 +387,24 @@ createButton("Get access to The Subway", function()
 	end
 
 	print("Get access to The Subway results:", table.concat(destroyed, " | "))
+end)
 
-	-- Create a bridge part
-	local startPos = Vector3.new(16, 4, -22)
-	local endPos = Vector3.new(18, 4, -32)
-	local bridge = Instance.new("Part")
-	bridge.Anchored = true
-	bridge.Size = Vector3.new( (endPos - startPos).Magnitude, 1, 4 ) -- length between points, thin width/depth
-	bridge.CFrame = CFrame.new((startPos + endPos)/2, endPos) -- positioned and oriented between start and end
-	bridge.BrickColor = BrickColor.new("Medium stone grey")
-	bridge.Material = Enum.Material.Metal
-	bridge.Parent = workspace
+-- Teleport to other side of Subway
+createButton("Teleport to Other Side of Subway", function()
+    local Players = game:GetService("Players")
+    local player = Players.LocalPlayer
+    local character = player.Character
 
-	print("Bridge created from", tostring(startPos), "to", tostring(endPos))
+    if not character or not character:FindFirstChild("HumanoidRootPart") then
+        print("Character or HumanoidRootPart not found!")
+        return
+    end
+
+    -- Target position
+    local targetPos = Vector3.new(17, 4, -38)
+    character.HumanoidRootPart.CFrame = CFrame.new(targetPos)
+
+    print("Teleported to other side of Subway:", targetPos)
 end)
 
 -- Remove Callers
